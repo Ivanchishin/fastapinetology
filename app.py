@@ -19,7 +19,7 @@ def get_db():
 
 
 # Создание объявления
-@app.post("/advertisement", response_model=schemas.AdvertisementResponse)
+@app.post("/advertisement", response_model=schemas.AdvertisementResponse, status_code=201)
 def create_advertisement(ad: schemas.AdvertisementCreate, db: Session = Depends(get_db)):
     db_ad = models.Advertisement(**ad.dict())
     db.add(db_ad)
@@ -75,17 +75,19 @@ def search_advertisements(
         author: Optional[str] = Query(None),
         min_price: Optional[float] = Query(None),
         max_price: Optional[float] = Query(None),
+        limit: int = Query(10, ge=1),
+        offset: int = Query(0, ge=0),
         db: Session = Depends(get_db)
 ):
     query = db.query(models.Advertisement)
 
     if title:
-        query = query.filter(models.Advertisement.title.contains(title))
+        query = query.filter(models.Advertisement.title.ilike(f"%{title}%"))
     if author:
-        query = query.filter(models.Advertisement.author.contains(author))
+        query = query.filter(models.Advertisement.author.ilike(f"%{author}%"))
     if min_price is not None:
         query = query.filter(models.Advertisement.price >= min_price)
     if max_price is not None:
         query = query.filter(models.Advertisement.price <= max_price)
 
-    return query.all()
+    return query.offset(offset).limit(limit).all()

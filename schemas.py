@@ -1,11 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional
 
 class AdvertisementBase(BaseModel):
     title: str
     description: str
-    price: float
+    price: float = Field(gt=0)
     author: str
 
 class AdvertisementCreate(AdvertisementBase):
