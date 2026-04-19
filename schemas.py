@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
+
 
 class AdvertisementBase(BaseModel):
     title: str
@@ -8,14 +9,17 @@ class AdvertisementBase(BaseModel):
     price: float = Field(gt=0)
     author: str
 
+
 class AdvertisementCreate(AdvertisementBase):
     pass
+
 
 class AdvertisementUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[float] = None
+    price: Optional[float] = Field(default=None, gt=0)
     author: Optional[str] = None
+
 
 class AdvertisementResponse(AdvertisementBase):
     id: int
@@ -23,3 +27,10 @@ class AdvertisementResponse(AdvertisementBase):
 
     class Config:
         from_attributes = True
+
+
+class AdvertisementListResponse(BaseModel):
+    items: List[AdvertisementResponse]
+    total: int
+    limit: int
+    offset: int
